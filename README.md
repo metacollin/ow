@@ -1,4 +1,5 @@
-# ow - the VHDL One Wire master & device wrapper that loves you
+# ow
+### The VHDL One Wire master & device wrapper that loves you
 
 Are you working with VHDL?  Do you need to implement a One Wire/1-wire master in hardware?  If you answered yes to either, you almost certainly need a hug.  But if you answered yes to both, you *definitely* need a hug.  And this code.  
 
@@ -19,7 +20,7 @@ when read_from_eeprom => -- state in a flat FSM
   ow(tx => READ_MEMORY); -- 0xFO
   ow(tx => x"00"); -- Target Address 1 (TA1)
   ow(tx => x"00"); -- Target Address 2 (TA2)
-  ow(rx => eeprom_buffer); -- std_logic_vector or array.  Will read eiter a single byte or as many bytes as the array is long. 
+  ow(rx => eeprom_buffer); -- std_logic_vector or array of desired read length
   ow(proceed_to => load_contents); -- the state to put the FSM into when done
 ```
 
