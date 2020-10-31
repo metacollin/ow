@@ -31,7 +31,7 @@ And this is what makes ow so pleasant to use.  There is no getting around it, us
 
 ow lets you make parallel calls to it, as many as you wish in a single clock, **but will execute them sequentially, in the order you made the calls in your code anyway.**  Not only will the instructs be performed in order, they will occur only after the previous one has finished.  The only requirement is that you use the `proceed_to` instruction to change state from a state containing calls to ow.  No other special rules need be observed, and there are no surprises.  
 
-The sequential nature of ow is not fragile and handled at time of synthesis, not in hardware.  This ensures that it is robust, well-behaved, and of course, synthesizeable.  You may use it within control structures like if statements and loops.
+The sequential nature of ow is not fragile and handled at time of synthesis to generate a lookup table, but it is otherwise not dealt with directly in hardware.  This ensures that it is robust, well-behaved, and of course, synthesizeable.  You may use it within control structures like if statements and loops.
 
 Let's checkout another example, one where we write to the EEPROM scratch pad then copy the contents to memory:
 
