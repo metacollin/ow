@@ -33,5 +33,28 @@ ow lets you make parallel calls to it, as many as you wish in a single clock, **
 
 The sequential nature of ow is not fragile and handled at time of synthesis, not in hardware.  This ensures that it is robust, well-behaved, and of course, synthesizeable.  You may use it within control structures like if statements and loops.
 
+Let's checkout another example, one where we write to the EEPROM scratch pad then copy the contents to memory:
+
+```vhdl
+when write_scratchpad_and_copy_to_eeprom =>
+  ow(bus_reset);
+  ow(tx => SKIP_ROM); -- 0xCC
+  ow(tx => WRITE_SCRATCHPAD); -- 0x0F
+  ow(tx => ta1); -- Target Address 1 (TA1)
+  ow(tx => ta2); -- Target Address 2 (TA2)
+  ow(tx => scratchpad_contents); -- Array of std_logic_vectors
+  ow(rx => scratchpad_crc); -- optional
+  ow(bus_reset);
+  ow(tx => SKIP_ROM); -- 0xCC
+  ow(tx => COPY_SCRATCHPAD); -- 0x55
+  ow(tx => ta1); -- Target Address 1 (TA1) ──────────────────> ┐
+  ow(tx => ta2); -- Target Address 2 (TA2) ──────────────────> ┼──> Aurthorization code
+  ow(tx => AUTH_CODE); -- 0x07 byte count of scratchpad ──────> ┘
+  ow(wait_for_program); -- Wait 12.5ms, t_prog_max
+  ow(proceed_to => idle);
+```
+
+
+Based on Maxim's `ds1wm` [one wire master [PDF]](https://pdfserv.maximintegrated.com/en/ds/DS1WM.pdf).
 
 **NOTE: This is currently under active development.  Neither the documentation or the code itself is currently feature complete.**
