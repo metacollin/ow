@@ -878,6 +878,7 @@ if (rising_edge(clk_1mhz)) then
           CHUNK((8 * (i + 1)) - 1 downto 8 * i) <= eeprom_buffer(i);
         end loop;
         ow_state <= idle;
+                                        
       when write_page_to_eeprom =>
         ow(bus_reset);
         ow(tx => SKIP_ROM);
@@ -886,6 +887,7 @@ if (rising_edge(clk_1mhz)) then
         ow(tx => ta2);
         ow(tx => scratchpad_contents);
         ow(rx => scratchpad_crc); -- optional
+        ow(bus_reset);
         ow(tx => SKIP_ROM);
         ow(tx => COPY_SCRATCHPAD);
         ow(tx => ta1);
@@ -893,6 +895,7 @@ if (rising_edge(clk_1mhz)) then
         ow(tx => AUTH_CODE);
         ow(wait_for_program);
         ow(proceed_to    => idle);
+                                        
       when read_serial =>
         ow(bus_reset);
         ow(tx         => READ_SERIAL_ID);
