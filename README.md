@@ -33,7 +33,7 @@ ow lets you make parallel calls to it, as many as you wish in a single clock, **
 
 The sequential nature of ow is not fragile and handled at time of synthesis to generate a lookup table, but it is otherwise not dealt with directly in hardware.  This ensures that it is robust, well-behaved, and of course, synthesizeable.  You may use it within control structures like if statements and loops.
 
-Let's checkout another example, one where we write to the EEPROM scratch pad then copy the contents to memory:
+Example 2, write to the EEPROM scratch pad then copy the contents to memory:
 
 ```vhdl
 when write_scratchpad_and_copy_to_eeprom =>
