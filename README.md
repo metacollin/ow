@@ -1,5 +1,6 @@
 # ow
 ### The VHDL One Wire master & device wrapper that loves you
+*Developed by [Orthogonal Systems](https://orthogonalsystems.com)*
 
 Are you working with VHDL?  Do you need to implement a One Wire/1-wire master in hardware?  If you answered yes to either, you almost certainly need a hug.  But if you answered yes to both, you *definitely* need a hug.  And this code.  
 
