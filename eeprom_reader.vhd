@@ -524,37 +524,37 @@ begin
 
   id := reflected;
 
-  crc_out(0) := id(53) xor id(52) xor id(51) xor id(50) xor id(49) xor id(48) xor id(45) xor id(44) xor id(42) xor id(40) xor id(39) xor id(38)
-  xor id(34) xor id(33) xor id(32) xor id(31) xor id(25) xor id(24) xor id(23) xor id(21) xor id(18) xor id(15) xor id(14)
-  xor id(11) xor id(10) xor id(9) xor id(6) xor id(4) xor id(3) xor id(0) xor crc(0) xor crc(1) xor crc(2) xor crc(3) xor crc(4) xor crc(5);
+  crc_out(0) := id(53) xor id(52) xor id(51) xor id(50) xor id(49) xor id(48) xor id(45) xor id(44) xor id(42) xor id(40) xor id(39) xor id(38) xor id(34) xor 
+                id(33) xor id(32) xor id(31) xor id(25) xor id(24) xor id(23) xor id(21) xor id(18) xor id(15) xor id(14) xor id(11) xor id(10) xor id(9)  xor 
+                id(6)  xor id(4)  xor id(3)  xor id(0)  xor crc(0) xor crc(1) xor crc(2) xor crc(3) xor crc(4) xor crc(5);
 
-  crc_out(1) := id(54) xor id(53) xor id(52) xor id(51) xor id(50) xor id(49) xor id(46) xor id(45) xor id(43) xor id(41) xor id(40) xor id(39)
-  xor id(35) xor id(34) xor id(33) xor id(32) xor id(26) xor id(25) xor id(24) xor id(22) xor id(19) xor id(16) xor id(15)
-  xor id(12) xor id(11) xor id(10) xor id(7) xor id(5) xor id(4) xor id(1) xor crc(1) xor crc(2) xor crc(3) xor crc(4) xor crc(5) xor crc(6);
+  crc_out(1) := id(54) xor id(53) xor id(52) xor id(51) xor id(50) xor id(49) xor id(46) xor id(45) xor id(43) xor id(41) xor id(40) xor id(39) xor id(35) xor 
+                id(34) xor id(33) xor id(32) xor id(26) xor id(25) xor id(24) xor id(22) xor id(19) xor id(16) xor id(15) xor id(12) xor id(11) xor id(10) xor 
+                id(7)  xor id(5)  xor id(4)  xor id(1)  xor crc(1) xor crc(2) xor crc(3) xor crc(4) xor crc(5) xor crc(6);
 
-  crc_out(2) := id(55) xor id(54) xor id(53) xor id(52) xor id(51) xor id(50) xor id(47) xor id(46) xor id(44) xor id(42) xor id(41) xor id(40)
-  xor id(36) xor id(35) xor id(34) xor id(33) xor id(27) xor id(26) xor id(25) xor id(23) xor id(20) xor id(17) xor id(16)
-  xor id(13) xor id(12) xor id(11) xor id(8) xor id(6) xor id(5) xor id(2) xor crc(2) xor crc(3) xor crc(4) xor crc(5) xor crc(6) xor crc(7);
+  crc_out(2) := id(55) xor id(54) xor id(53) xor id(52) xor id(51) xor id(50) xor id(47) xor id(46) xor id(44) xor id(42) xor id(41) xor id(40) xor id(36) xor 
+                id(35) xor id(34) xor id(33) xor id(27) xor id(26) xor id(25) xor id(23) xor id(20) xor id(17) xor id(16) xor id(13) xor id(12) xor id(11) xor 
+                id(8)  xor id(6)  xor id(5)  xor id(2)  xor crc(2) xor crc(3) xor crc(4) xor crc(5) xor crc(6) xor crc(7);
 
-  crc_out(3) := id(55) xor id(54) xor id(53) xor id(52) xor id(51) xor id(48) xor id(47) xor id(45) xor id(43) xor id(42) xor id(41) xor id(37)
-  xor id(36) xor id(35) xor id(34) xor id(28) xor id(27) xor id(26) xor id(24) xor id(21) xor id(18) xor id(17) xor id(14)
-  xor id(13) xor id(12) xor id(9) xor id(7) xor id(6) xor id(3) xor crc(0) xor crc(3) xor crc(4) xor crc(5) xor crc(6) xor crc(7);
+  crc_out(3) := id(55) xor id(54) xor id(53) xor id(52) xor id(51) xor id(48) xor id(47) xor id(45) xor id(43) xor id(42) xor id(41) xor id(37) xor id(36) xor
+                id(35) xor id(34) xor id(28) xor id(27) xor id(26) xor id(24) xor id(21) xor id(18) xor id(17) xor id(14) xor id(13) xor id(12) xor id(9)  xor 
+                id(7)  xor id(6)  xor id(3)  xor crc(0) xor crc(3) xor crc(4) xor crc(5) xor crc(6) xor crc(7);
 
-  crc_out(4) := id(55) xor id(54) xor id(51) xor id(50) xor id(46) xor id(45) xor id(43) xor id(40) xor id(39) xor id(37) xor id(36) xor id(35)
-  xor id(34) xor id(33) xor id(32) xor id(31) xor id(29) xor id(28) xor id(27) xor id(24) xor id(23) xor id(22) xor id(21)
-  xor id(19) xor id(13) xor id(11) xor id(9) xor id(8) xor id(7) xor id(6) xor id(3) xor id(0) xor crc(2) xor crc(3) xor crc(6) xor crc(7);
+  crc_out(4) := id(55) xor id(54) xor id(51) xor id(50) xor id(46) xor id(45) xor id(43) xor id(40) xor id(39) xor id(37) xor id(36) xor id(35) xor id(34) xor 
+                id(33) xor id(32) xor id(31) xor id(29) xor id(28) xor id(27) xor id(24) xor id(23) xor id(22) xor id(21) xor id(19) xor id(13) xor id(11) xor
+                id(9)  xor id(8)  xor id(7)  xor id(6)  xor id(3)  xor id(0)  xor crc(2) xor crc(3) xor crc(6) xor crc(7);
 
-  crc_out(5) := id(55) xor id(53) xor id(50) xor id(49) xor id(48) xor id(47) xor id(46) xor id(45) xor id(42) xor id(41) xor id(39) xor id(37)
-  xor id(36) xor id(35) xor id(31) xor id(30) xor id(29) xor id(28) xor id(22) xor id(21) xor id(20) xor id(18) xor id(15)
-  xor id(12) xor id(11) xor id(8) xor id(7) xor id(6) xor id(3) xor id(1) xor id(0) xor crc(0) xor crc(1) xor crc(2) xor crc(5) xor crc(7);
+  crc_out(5) := id(55) xor id(53) xor id(50) xor id(49) xor id(48) xor id(47) xor id(46) xor id(45) xor id(42) xor id(41) xor id(39) xor id(37) xor id(36) xor 
+                id(35) xor id(31) xor id(30) xor id(29) xor id(28) xor id(22) xor id(21) xor id(20) xor id(18) xor id(15) xor id(12) xor id(11) xor id(8)  xor
+                id(7)  xor id(6)  xor id(3)  xor id(1)  xor id(0)  xor crc(0) xor crc(1) xor crc(2) xor crc(5) xor crc(7);
 
-  crc_out(6) := id(54) xor id(51) xor id(50) xor id(49) xor id(48) xor id(47) xor id(46) xor id(43) xor id(42) xor id(40) xor id(38) xor id(37)
-  xor id(36) xor id(32) xor id(31) xor id(30) xor id(29) xor id(23) xor id(22) xor id(21) xor id(19) xor id(16) xor id(13)
-  xor id(12) xor id(9) xor id(8) xor id(7) xor id(4) xor id(2) xor id(1) xor crc(0) xor crc(1) xor crc(2) xor crc(3) xor crc(6);
+  crc_out(6) := id(54) xor id(51) xor id(50) xor id(49) xor id(48) xor id(47) xor id(46) xor id(43) xor id(42) xor id(40) xor id(38) xor id(37) xor id(36) xor
+                id(32) xor id(31) xor id(30) xor id(29) xor id(23) xor id(22) xor id(21) xor id(19) xor id(16) xor id(13) xor id(12) xor id(9)  xor id(8)  xor
+                id(7)  xor id(4)  xor id(2)  xor id(1)  xor crc(0) xor crc(1) xor crc(2) xor crc(3) xor crc(6);
 
-  crc_out(7) := id(55) xor id(52) xor id(51) xor id(50) xor id(49) xor id(48) xor id(47) xor id(44) xor id(43) xor id(41) xor id(39) xor id(38)
-  xor id(37) xor id(33) xor id(32) xor id(31) xor id(30) xor id(24) xor id(23) xor id(22) xor id(20) xor id(17) xor id(14)
-  xor id(13) xor id(10) xor id(9) xor id(8) xor id(5) xor id(3) xor id(2) xor crc(0) xor crc(1) xor crc(2) xor crc(3) xor crc(4) xor crc(7);
+  crc_out(7) := id(55) xor id(52) xor id(51) xor id(50) xor id(49) xor id(48) xor id(47) xor id(44) xor id(43) xor id(41) xor id(39) xor id(38) xor id(37) xor
+                id(33) xor id(32) xor id(31) xor id(30) xor id(24) xor id(23) xor id(22) xor id(20) xor id(17) xor id(14) xor id(13) xor id(10) xor id(9)  xor 
+                id(8)  xor id(5)  xor id(3)  xor id(2)  xor crc(0) xor crc(1) xor crc(2) xor crc(3) xor crc(4) xor crc(7);
 
   for i in crc_rev'range loop
     crc_ref(i) := crc_rev(i);
