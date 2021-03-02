@@ -5,13 +5,13 @@
 -- Copyright 2020 Orthogonal Systems LLC, Collin Anderson, Ian Wisher
 -- SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 --
--- Licensed under the Solderpad Hardware License v 2.1 (the “License�?); you may not use this file except in compliance
+-- Licensed under the Solderpad Hardware License v 2.1 (the “License�?); you may not use this file except in compliance
 -- with the License, or, at your option, the Apache License version 2.0. You may obtain a copy of the License at
 --
 -- https://solderpad.org/licenses/SHL-2.1/
 --
 -- Unless required by applicable law or agreed to in writing, any work distributed under the License is distributed on
--- an “AS IS�? BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+-- an “AS IS�? BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 -- specific language governing permissions and limitations under the License.
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -221,6 +221,7 @@ architecture Behavioral of one_wire_wrapper is
     read_serial,
     waiting_for_send,
     waiting_for_response,
+    load_id,
     validate_id,
     write_to_scratchpad,
     read_from_scratchpad,
@@ -818,7 +819,7 @@ if (rising_edge(clk_1mhz)) then
           read_done   <= true;
         end if;
 
-      when validate_id =>
+      when load_id =>
         id_vec(7 downto 0)   <= id_buffer(0);
         id_vec(15 downto 8)  <= id_buffer(1);
         id_vec(23 downto 16) <= id_buffer(2);
@@ -828,6 +829,11 @@ if (rising_edge(clk_1mhz)) then
         id_vec(55 downto 48) <= id_buffer(6);
         id_vec(63 downto 56) <= id_buffer(7);
         serial_crc           <= id_buffer(7);
+        
+        ow(proceed_to => validate_id);
+        
+        
+     when validate_id =>
         if crc8_56w(id_vec(55 downto 0)) = serial_crc then
             serial_id_valid <= '1';
             serial_id       <= id_vec;
@@ -902,7 +908,7 @@ if (rising_edge(clk_1mhz)) then
         ow(bus_reset);
         ow(tx         => READ_SERIAL_ID);
         ow(rx         => id_buffer);
-        ow(proceed_to => validate_id);
+        ow(proceed_to => load_id);
 
       when idle =>
         if (CLR = '1') then
