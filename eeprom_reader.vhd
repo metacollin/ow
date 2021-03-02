@@ -471,6 +471,7 @@ begin
     else
       after_next_ow_state <= ow_state;
       ow_state            <= ow_rx;
+      setup_count <= 6;
     end if;
   end if;
   sequence_num := sequence_num + 1;
@@ -487,6 +488,7 @@ begin
       index               <= index + 1;
       after_next_ow_state <= ow_state;
       ow_state            <= ow_rx;
+      setup_count <= 6;
     end if;
     if index > 0 then
       rx(index - 1) <= read_buffer;
