@@ -5,13 +5,13 @@
 -- Copyright 2020 Orthogonal Systems LLC, Collin Anderson, Ian Wisher
 -- SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 --
--- Licensed under the Solderpad Hardware License v 2.1 (the “License”); you may not use this file except in compliance
+-- Licensed under the Solderpad Hardware License v 2.1 (the “License�?); you may not use this file except in compliance
 -- with the License, or, at your option, the Apache License version 2.0. You may obtain a copy of the License at
 --
 -- https://solderpad.org/licenses/SHL-2.1/
 --
 -- Unless required by applicable law or agreed to in writing, any work distributed under the License is distributed on
--- an “AS IS” BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+-- an “AS IS�? BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 -- specific language governing permissions and limitations under the License.
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -32,15 +32,13 @@ entity one_wire_wrapper is
     clk_1mhz        : in     std_logic;
     reset           : in     std_logic;
     one_wire        : inout  std_logic;
-    serial_id       : out    std_logic_vector (55 downto 0);
+    serial_id       : out    std_logic_vector (63 downto 0);
     serial_id_valid : out    std_logic;
     WR              : in     std_logic;
     RD              : in     std_logic;
-    TADDR           : in     std_logic_vector(integer(log2(real(eeprom_size/8))) downto 0);
-    CHUNK           : out    std_logic_vector(read_chunk - 1 downto 0);
-    SCRATCHPAD      : buffer std_logic_vector(scratchpad_size downto 0);
+    MEMORY_IN       : in     std_logic_vector(eeprom_size-1 downto 0);
+    MEMORY_OUT      : out    std_logic_vector(eeprom_size-1 downto 0);
     RDY             : out    std_logic;
-    BYTE            : out    std_logic_vector(7 downto 0);
     ERR             : out    std_logic;
     CLR             : in     std_logic
   );
@@ -258,7 +256,7 @@ architecture Behavioral of one_wire_wrapper is
   signal scratchpad_contents  : vector_array (0 to ((scratchpad_size/8) - 1));
   signal index, wait_count    : integer;
   signal data_out             : std_logic_vector(7 downto 0);
-  signal id_vec               : std_logic_vector(55 downto 0);
+  signal id_vec               : std_logic_vector(63 downto 0);
 
   signal int_register   : std_logic_vector(7 downto 0);
   signal setup_count    : integer := 6;
@@ -450,6 +448,7 @@ begin
   end if;
   sequence_num := sequence_num + 1;
 end procedure;
+
 procedure ow(constant ow_prog_wait : in wait_t) is
 begin
   if cur_step = sequence_num then
@@ -584,7 +583,7 @@ if (rising_edge(clk_1mhz)) then
     es              <= x"07";
     cur_step        <= 0;
     serial_id_valid <= '0';
-    serial_id       <= x"00000000000000";
+    serial_id       <= x"0000000000000000";
     read_done       <= false;
     write_done      <= false;
     read_buffer     <= x"00";
@@ -597,6 +596,7 @@ if (rising_edge(clk_1mhz)) then
         ADDRESS     <= b"000";
         setup_count <= 6;
         ow_state    <= enabling_ow_clock;
+        
       when enabling_ow_clock =>
         if (setup_count = 6) then
           ADS_bar     <= '0';
@@ -627,6 +627,7 @@ if (rising_edge(clk_1mhz)) then
           setup_count <= 6;
           ow_state    <= read_serial;
         end if;
+        
       when wait4prog =>
         if (wait_count = 12500) then
           ow_state   <= after_next_ow_state;
@@ -825,14 +826,15 @@ if (rising_edge(clk_1mhz)) then
         id_vec(39 downto 32) <= id_buffer(4);
         id_vec(47 downto 40) <= id_buffer(5);
         id_vec(55 downto 48) <= id_buffer(6);
+        id_vec(63 downto 56) <= id_buffer(7);
         serial_crc           <= id_buffer(7);
-        if crc8_56w(id_vec) = serial_crc then
-          serial_id_valid <= '1';
-          serial_id       <= id_vec;
+        if crc8_56w(id_vec(55 downto 0)) = serial_crc then
+            serial_id_valid <= '1';
+            serial_id       <= id_vec;
         else
-          serial_id       <= id_vec;
-          serial_id_valid <= '0';
-          ERR             <= '1';
+            serial_id       <= id_vec;
+            serial_id_valid <= '0';
+            ERR             <= '1';
         end if;
         ow(proceed_to => idle);
         --          when write_to_scratchpad =>
@@ -875,7 +877,7 @@ if (rising_edge(clk_1mhz)) then
 
       when load_contents =>
         for i in 0 to eeprom_buffer'length - 1 loop
-          CHUNK((8 * (i + 1)) - 1 downto 8 * i) <= eeprom_buffer(i);
+          MEMORY_OUT((8 * (i + 1)) - 1 downto 8 * i) <= eeprom_buffer(i);
         end loop;
         ow_state <= idle;
                                         
@@ -909,14 +911,12 @@ if (rising_edge(clk_1mhz)) then
 
         if (WR = '1') then
           RDY <= '0';
-          ta1 <= TADDR;
           for i in 0 to scratchpad_contents'length - 1 loop
-            scratchpad_contents(i) <= SCRATCHPAD((8 * (i + 1)) - 1 downto 8 * i);
+            scratchpad_contents(i) <= MEMORY_IN((8 * (i + 1)) - 1 downto 8 * i);
           end loop;
           ow_state <= write_page_to_eeprom;
         elsif (RD = '1') then
           RDY      <= '0';
-          ta1      <= TADDR;
           ow_state <= read_from_memory;
         else
           RDY      <= '1';
