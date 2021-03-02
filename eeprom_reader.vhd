@@ -416,8 +416,8 @@ begin
     sequence_num := sequence_num + 1;
   end procedure;
 
-  procedure ow(constant tx : in vector_array;
-  constant addr            : in std_logic_vector(2 downto 0) := b"001") is
+procedure ow(constant tx : in vector_array;
+constant addr            : in std_logic_vector(2 downto 0) := b"001") is
 begin
   if cur_step = sequence_num then
     if write_done = true then
@@ -568,6 +568,7 @@ end function;
 
 begin
 if (rising_edge(clk_1mhz)) then
+  sequence_num := 0;      
   if (reset = '1') then
     ADDRESS         <= b"000";
     ADS_bar         <= '0';
@@ -597,7 +598,7 @@ if (rising_edge(clk_1mhz)) then
       when setup =>
         MR          <= '0';
         ADDRESS     <= b"000";
-        setup_count <= 6;
+        --setup_count <= 6;
         ow_state    <= enabling_ow_clock;
         
       when enabling_ow_clock =>
