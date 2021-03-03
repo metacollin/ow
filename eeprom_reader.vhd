@@ -269,7 +269,6 @@ architecture Behavioral of one_wire_wrapper is
   constant scratchpad_count     : natural :=  eeprom_size/scratchpad_size;
   signal scratchpad_write_count : natural :=  0;
 
-
   signal int_register   : std_logic_vector(7 downto 0);
   signal setup_count    : integer := 6;
   signal scratchpad_crc : vector_array (0 to 1);
@@ -611,6 +610,7 @@ if (rising_edge(clk_1mhz)) then
         ADDRESS     <= b"000";
         --setup_count <= 6;
         ow_state    <= enabling_ow_clock;
+
         
       when enabling_ow_clock =>
         if (setup_count = 6) then
@@ -642,6 +642,7 @@ if (rising_edge(clk_1mhz)) then
           setup_count <= 6;
           ow_state    <= read_serial;
         end if;
+
         
       when wait4prog =>
         if (wait_count = 12500) then
@@ -651,6 +652,7 @@ if (rising_edge(clk_1mhz)) then
           ow_state   <= wait4prog;
           wait_count <= wait_count + 1;
         end if;
+
 
       when generating_ow_reset =>
         if (setup_count = 6) then
@@ -683,6 +685,7 @@ if (rising_edge(clk_1mhz)) then
           ow_state    <= waiting_for_reset;
         end if;
 
+
       when waiting_for_reset =>
         if (int_register(0) = '0') then
           ow_state      <= updating_int_register;
@@ -690,6 +693,7 @@ if (rising_edge(clk_1mhz)) then
         else
           ow_state <= after_next_ow_state;
         end if;
+
 
       when updating_int_register =>
         if (setup_count = 6) then
@@ -720,6 +724,7 @@ if (rising_edge(clk_1mhz)) then
           setup_count <= 6;
           ow_state    <= next_ow_state;
         end if;
+
 
       when ow_tx =>
         if (setup_count = 6) then
@@ -754,6 +759,7 @@ if (rising_edge(clk_1mhz)) then
           write_done    <= True;
         end if;
 
+
       when waiting_for_send =>
         if (int_register(3) = '1') then
           ow_state <= after_next_ow_state;
@@ -762,6 +768,7 @@ if (rising_edge(clk_1mhz)) then
           ow_state      <= updating_int_register;
           next_ow_state <= waiting_for_send;
         end if;
+
 
       when ow_rx =>
         if (setup_count = 6) then
@@ -795,6 +802,7 @@ if (rising_edge(clk_1mhz)) then
           next_ow_state <= waiting_for_response;
         end if;
 
+
       when waiting_for_response =>
         if (int_register(4) = '1' and int_register(3) = '1') then
           ow_state <= ow_rx_byte;
@@ -802,6 +810,7 @@ if (rising_edge(clk_1mhz)) then
           ow_state      <= updating_int_register;
           next_ow_state <= waiting_for_response;
         end if;
+
 
       when ow_rx_byte =>
         if (setup_count = 6) then
@@ -833,6 +842,7 @@ if (rising_edge(clk_1mhz)) then
           ow_state    <= after_next_ow_state;
           read_done   <= true;
         end if;
+
 
       when load_id =>
         id_vec(7 downto 0)   <= id_buffer(0);
@@ -953,7 +963,6 @@ if (rising_edge(clk_1mhz)) then
         else 
             ta1  <= std_logic_vector(to_unsigned(scratchpad_write_count*8,8));
             for i in 0 to 7 loop
---                scratchpad_contents(i) <= eeprom_contents((scratchpad_write_count*8)+i);
                   scratchpad_contents(i) <= MEMORY_IN((8 * (8*scratchpad_write_count + 1+i)) - 1 
                                                        downto 
                                                        8 * (8*scratchpad_write_count+i));
@@ -961,9 +970,7 @@ if (rising_edge(clk_1mhz)) then
             scratchpad_write_count <= scratchpad_write_count + 1;
             ow_state <= write_page_to_eeprom;
         end if;     
-            
-   
-                                        
+                               
       when read_serial =>
         ow(bus_reset);
         ow(tx         => READ_SERIAL_ID);
@@ -972,15 +979,15 @@ if (rising_edge(clk_1mhz)) then
 
       when idle =>
         if (CLR = '1') then
-          ERR <= '0';
+          ERR             <= '0';
+          serial_id       <= (others => '0');
+          serial_id_valid <= '0';
+          MEMORY_OUT      <= (others => '0');   
         end if;
 
         if (WR = '1') then
           RDY <= '0';
           ta1 <= x"00";
---          for i in 0 to eeprom_contents'length - 1 loop
---            eeprom_contents(i) <= MEMORY_IN((8 * (i + 1)) - 1 downto 8 * i);
---          end loop;
           scratchpad_write_count <= 0;
           ow_state <= write_eeprom;
           
