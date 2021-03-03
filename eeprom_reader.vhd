@@ -228,8 +228,14 @@ architecture Behavioral of one_wire_wrapper is
     copy_scratchpad_to_memory,
     read_from_memory,
     write_page_to_eeprom,
+    write_eeprom,
     wait4prog,
     load_contents,
+    restart_count,
+    set_restart_count,
+    add_restart_count,
+    set_scratchpad_contents,
+    write_count_to_eeprom,
     idle);
 
   signal ADDRESS             : std_logic_vector(2 downto 0);
@@ -255,15 +261,21 @@ architecture Behavioral of one_wire_wrapper is
   signal copy_status, ta1, es : std_logic_vector(7 downto 0);
   constant ta2                : std_logic_vector(7 downto 0) := x"00";
   signal scratchpad_contents  : vector_array (0 to ((scratchpad_size/8) - 1));
+  signal eeprom_contents      : vector_array (0 to ((eeprom_size/8) - 1));
+  
   signal index, wait_count    : integer;
   signal data_out             : std_logic_vector(7 downto 0);
   signal id_vec               : std_logic_vector(63 downto 0);
+  signal restart_cnt          : std_logic_vector(31 downto 0);
+  constant scratchpad_count     : natural :=  eeprom_size/scratchpad_size;
+  signal scratchpad_write_count : natural :=  0;
+
 
   signal int_register   : std_logic_vector(7 downto 0);
   signal setup_count    : integer := 6;
   signal scratchpad_crc : vector_array (0 to 1);
 
-  signal eeprom_buffer : vector_array(0 to ((read_chunk/8) - 1));
+  signal eeprom_buffer : vector_array(0 to ((eeprom_size/8) - 1));
   signal read_done     : boolean;
   signal read_buffer   : std_logic_vector(7 downto 0);
   signal write_buffer  : std_logic_vector(7 downto 0);
@@ -402,8 +414,8 @@ begin
   one_wire_state_machine : process (clk_1mhz)
     variable sequence_num : integer := 0;
 
-    procedure ow(constant tx : in std_logic_vector(7 downto 0);
-    constant addr            : in std_logic_vector(2 downto 0) := b"001") is
+procedure ow(constant tx : in std_logic_vector(7 downto 0);
+constant addr            : in std_logic_vector(2 downto 0) := b"001") is
   begin
     if cur_step = sequence_num then
       after_next_ow_state <= ow_state;
@@ -740,6 +752,7 @@ if (rising_edge(clk_1mhz)) then
           setup_count   <= 6;
           ow_state      <= updating_int_register;
           next_ow_state <= waiting_for_send;
+          write_done    <= True;
         end if;
 
       when waiting_for_send =>
@@ -845,34 +858,7 @@ if (rising_edge(clk_1mhz)) then
             serial_id_valid <= '0';
             ERR             <= '1';
         end if;
-        ow(proceed_to => idle);
-        --          when write_to_scratchpad =>
-        --            ow(tx => SKIP_ROM);
-        --            ow(tx => WRITE_SCRATCHPAD);
-        --            ow(tx => ta1);
-        --            ow(tx => ta2);
-        --            ow(tx => write_buffer);
-        --            ow(rx => scratchpad_crc);
-        --            ow(proceed_to => next_meta_state);
-
-        --          when read_from_scratchpad =>
-        --            ow(tx => SKIP_ROM);
-        --            ow(tx => READ_SCRATCHPAD);
-        --            ow(rx => ta1);
-        --            ow(rx => ta2_in);
-        --            ow(rx => es);
-        --            ow(rx => read_buffer);
-        --            ow(rx => scratchpad_crc);
-        --            ow(proceed_to => next_meta_state);
-
-        --          when copy_scratchpad_to_memory =>
-        --            ow(tx => SKIP_ROM);
-        --            ow(tx => COPY_SCRATCHPAD);
-        --            ow(tx => ta1);
-        --            ow(tx => ta2);
-        --            ow(tx => AUTH_CODE);
-        --            ow(wait_for_program);          
-        --            ow(proceed_to => next_meta_state);
+        ow(proceed_to => restart_count);
 
       when read_from_memory =>
         RDY <= '0';
@@ -882,6 +868,58 @@ if (rising_edge(clk_1mhz)) then
         ow(tx         => ta1);
         ow(tx         => ta2);
         ow(rx         => eeprom_buffer);
+        ow(proceed_to => load_contents);
+        
+      when restart_count =>
+        RDY <= '0';
+        ow(bus_reset);
+        ow(tx         => SKIP_ROM);
+        ow(tx         => READ_MEMORY);
+        ow(tx         => ta1);
+        ow(tx         => ta2);
+        ow(rx         => eeprom_buffer);
+        ow(proceed_to => set_restart_count); 
+        
+        
+        when set_restart_count =>
+            restart_cnt <= eeprom_buffer(3) & eeprom_buffer(2) & eeprom_buffer(1) & eeprom_buffer(0);
+            ow_state <= add_restart_count;
+            
+        when add_restart_count =>
+            restart_cnt <= std_logic_vector(unsigned(restart_cnt) + 1);
+            ow_state <= set_scratchpad_contents;
+
+        when set_scratchpad_contents =>
+            scratchpad_contents(0) <= restart_cnt(7 downto 0);
+            scratchpad_contents(1) <= restart_cnt(15 downto 8);
+            scratchpad_contents(2) <= restart_cnt(23 downto 16);
+            scratchpad_contents(3) <= restart_cnt(31 downto 24);
+            for i in 4 to scratchpad_contents'length - 1 loop
+                scratchpad_contents(i) <= eeprom_buffer(i);
+            end loop;
+            ow_state <= write_count_to_eeprom;                     
+
+       when write_count_to_eeprom =>
+        ow(bus_reset);
+        ow(tx => SKIP_ROM);
+        ow(tx => WRITE_SCRATCHPAD);
+        ow(tx => ta1);
+        ow(tx => ta2);
+        ow(tx => scratchpad_contents);
+        ow(rx => scratchpad_crc); -- optional
+        ow(bus_reset);
+        ow(tx => SKIP_ROM);
+        ow(tx => COPY_SCRATCHPAD);
+        ow(tx => ta1);
+        ow(tx => ta2);
+        ow(tx => AUTH_CODE);
+        ow(wait_for_program);
+        ow(bus_reset);
+        ow(tx => SKIP_ROM);
+        ow(tx => READ_MEMORY);
+        ow(tx => ta1);
+        ow(tx => ta2);
+        ow(rx => eeprom_buffer);
         ow(proceed_to => load_contents);
 
       when load_contents =>
@@ -905,7 +943,24 @@ if (rising_edge(clk_1mhz)) then
         ow(tx => ta2);
         ow(tx => AUTH_CODE);
         ow(wait_for_program);
-        ow(proceed_to    => idle);
+        ow(proceed_to => write_eeprom);
+        
+      when write_eeprom =>
+        if scratchpad_write_count = scratchpad_count then
+            ow_state <= idle;
+            RDY      <= '1';
+            ta1      <= x"00";
+            scratchpad_write_count <= 0;
+        else 
+            ta1  <= std_logic_vector(to_unsigned(scratchpad_write_count*8,8));
+            for i in 0 to 7 loop
+                scratchpad_contents(i) <= eeprom_contents((scratchpad_write_count*8)+i);
+            end loop;
+            scratchpad_write_count <= scratchpad_write_count + 1;
+            ow_state <= write_page_to_eeprom;
+        end if;     
+            
+   
                                         
       when read_serial =>
         ow(bus_reset);
@@ -920,10 +975,13 @@ if (rising_edge(clk_1mhz)) then
 
         if (WR = '1') then
           RDY <= '0';
-          for i in 0 to scratchpad_contents'length - 1 loop
-            scratchpad_contents(i) <= MEMORY_IN((8 * (i + 1)) - 1 downto 8 * i);
+          ta1 <= x"00";
+          for i in 0 to eeprom_contents'length - 1 loop
+            eeprom_contents(i) <= MEMORY_IN((8 * (i + 1)) - 1 downto 8 * i);
           end loop;
-          ow_state <= write_page_to_eeprom;
+          scratchpad_write_count <= 0;
+          ow_state <= write_eeprom;
+          
         elsif (RD = '1') then
           RDY      <= '0';
           ow_state <= read_from_memory;
