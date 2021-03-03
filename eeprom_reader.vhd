@@ -261,7 +261,6 @@ architecture Behavioral of one_wire_wrapper is
   signal copy_status, ta1, es : std_logic_vector(7 downto 0);
   constant ta2                : std_logic_vector(7 downto 0) := x"00";
   signal scratchpad_contents  : vector_array (0 to ((scratchpad_size/8) - 1));
-  signal eeprom_contents      : vector_array (0 to ((eeprom_size/8) - 1));
   
   signal index, wait_count    : integer;
   signal data_out             : std_logic_vector(7 downto 0);
@@ -954,7 +953,10 @@ if (rising_edge(clk_1mhz)) then
         else 
             ta1  <= std_logic_vector(to_unsigned(scratchpad_write_count*8,8));
             for i in 0 to 7 loop
-                scratchpad_contents(i) <= eeprom_contents((scratchpad_write_count*8)+i);
+--                scratchpad_contents(i) <= eeprom_contents((scratchpad_write_count*8)+i);
+                  scratchpad_contents(i) <= MEMORY_IN((8 * (8*scratchpad_write_count + 1+i)) - 1 
+                                                       downto 
+                                                       8 * (8*scratchpad_write_count+i));
             end loop;
             scratchpad_write_count <= scratchpad_write_count + 1;
             ow_state <= write_page_to_eeprom;
@@ -976,9 +978,9 @@ if (rising_edge(clk_1mhz)) then
         if (WR = '1') then
           RDY <= '0';
           ta1 <= x"00";
-          for i in 0 to eeprom_contents'length - 1 loop
-            eeprom_contents(i) <= MEMORY_IN((8 * (i + 1)) - 1 downto 8 * i);
-          end loop;
+--          for i in 0 to eeprom_contents'length - 1 loop
+--            eeprom_contents(i) <= MEMORY_IN((8 * (i + 1)) - 1 downto 8 * i);
+--          end loop;
           scratchpad_write_count <= 0;
           ow_state <= write_eeprom;
           
