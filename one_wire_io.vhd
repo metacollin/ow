@@ -27,22 +27,15 @@ use IEEE.std_logic_1164.all;
 entity one_wire_io is
   port(
     CLK                        :  IN std_logic;
-    DDIR                       :  IN std_logic;
-    DOUT                       :  IN std_logic_vector(7 DOWNTO 0);
     DQ_CONTROL                 :  IN std_logic;
     MR                         :  IN std_logic;
-    --DIN                        :  OUT std_logic_vector(7 DOWNTO 0);
     DQ_IN                      :  OUT std_logic;
-    DATA                       :  INOUT std_logic_vector(7 DOWNTO 0);
     DQ                         :  INOUT std_logic);
 end one_wire_io;
 
 architecture rtl_one_wire_io of one_wire_io is
     
-  begin
-  
-    --DATA <= DOUT when DDIR='1' else "ZZZZZZZZ";
-    --DIN <= DATA;
+  begin 
     DQ <= 'Z' when DQ_CONTROL='1' else '0';
     
     process(MR, CLK)

@@ -27,7 +27,6 @@ entity one_wire_wrapper is
     eeprom_size     : integer := 1024;
     read_chunk      : integer := 64
   );
-
   port (
     clk_1mhz        : in     std_logic;
     reset           : in     std_logic;
@@ -49,12 +48,9 @@ architecture Behavioral of one_wire_wrapper is
   component one_wire_io
     port (
       CLK        : in std_logic;
-      DDIR       : in std_logic;
-      DOUT       : in std_logic_vector(7 downto 0);
-      DQ_CONTROL : in std_logic;
       MR         : in std_logic;
+      DQ_CONTROL : in std_logic;
       DQ_IN      : out   std_logic;
-      DATA       : inout std_logic_vector(7 downto 0);
       DQ         : inout std_logic
     );
   end component;
@@ -302,12 +298,9 @@ begin
   xone_wire_io : one_wire_io
   port map(
     CLK        => clk_1mhz,
-    DDIR       => DDIR,
-    DOUT       => DOUT,
-    DQ_CONTROL => DQ_CONTROL,
     MR         => MR,
     DQ_IN      => DQ_IN,
-    DATA       => DATA,
+    DQ_CONTROL => DQ_CONTROL,
     DQ         => one_wire
   );
 
