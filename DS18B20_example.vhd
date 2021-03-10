@@ -851,9 +851,11 @@ if (rising_edge(clk_1mhz)) then
         
       when read_temp =>
         ow(bus_reset);
+        ow(tx         => SKIP_ROM);        
         ow(tx         => TEMP_CONVERT);
         ow(wait_for_program);
         ow(bus_reset);
+        ow(tx         => SKIP_ROM);        
         ow(tx         => READ_SCRATCHPAD);
         ow(rx         => scratchpad_contents);
         ow(proceed_to => load_contents);  
